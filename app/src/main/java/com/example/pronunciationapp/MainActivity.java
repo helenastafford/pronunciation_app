@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         soundRecyclerView.setHasFixedSize(true);
 
 
-        layoutManager = new GridLayoutManager(this, 2);
+        layoutManager = new GridLayoutManager(this, 3);
         layoutManager.generateDefaultLayoutParams().setMargins(30,30,30,30);
         soundRecyclerView.setLayoutManager(layoutManager);
 
