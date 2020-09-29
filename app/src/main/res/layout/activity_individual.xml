@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".IndividualSoundActivity">
 
+    <ImageView
+        android:id="@+id/studentSpeakingImageView"
+        android:layout_width="69dp"
+        android:layout_height="69dp"
+        android:background="@color/colorNotSpeaking"
+        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/teacherSpeakingImageView"
+        app:layout_constraintTop_toBottomOf="@+id/toneRadioGroup"
+        app:srcCompat="@android:drawable/ic_lock_silent_mode_off" />
+
     <ImageButton
         android:id="@+id/playPauseButton"
         android:layout_width="99dp"
@@ -75,5 +87,17 @@
             android:onClick="handleTone4Click"
             android:text="4th Tone" />
     </RadioGroup>
+
+    <ImageView
+        android:id="@+id/teacherSpeakingImageView"
+        android:layout_width="69dp"
+        android:layout_height="69dp"
+        android:background="@color/colorNotSpeaking"
+        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toStartOf="@+id/studentSpeakingImageView"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toneRadioGroup"
+        app:srcCompat="@android:drawable/ic_lock_silent_mode_off" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
