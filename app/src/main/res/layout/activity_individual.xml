@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".IndividualSoundActivity">
+
+    <ImageButton
+        android:id="@+id/playPauseButton"
+        android:layout_width="99dp"
+        android:layout_height="102dp"
+        android:background="#00FFFFFF"
+        android:onClick="handlePlayButtonClick"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toneRadioGroup"
+        app:srcCompat="@drawable/playicon" />
+
+    <TextView
+        android:id="@+id/pinyinTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="pinyin"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RadioGroup
+        android:id="@+id/toneRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingLeft="10sp"
+        android:paddingTop="5sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pinyinTextView">
+
+        <RadioButton
+            android:id="@+id/tone1RadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:onClick="handleTone1Click"
+            android:text="1st Tone" />
+
+        <RadioButton
+            android:id="@+id/tone2RadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="handleTone2Click"
+            android:text="2nd Tone" />
+
+        <RadioButton
+            android:id="@+id/tone3RadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="handleTone3Click"
+            android:text="3rd Tone" />
+
+        <RadioButton
+            android:id="@+id/tone4RadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="handleTone4Click"
+            android:text="4th Tone" />
+    </RadioGroup>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

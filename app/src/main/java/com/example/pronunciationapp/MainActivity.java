@@ -4,7 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,5 +30,11 @@ public class MainActivity extends AppCompatActivity {
 
         mAdapter = new SoundAdapter();
         soundRecyclerView.setAdapter(mAdapter);
+    }
+
+    public void handleSoundClick(View view) {
+        Intent soundPageIntent = new Intent(this, IndividualSoundActivity.class);
+        soundPageIntent.putExtra("pinyin", ((TextView) view).getText());
+        startActivity(soundPageIntent);
     }
 }
