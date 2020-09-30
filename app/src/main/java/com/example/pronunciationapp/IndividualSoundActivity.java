@@ -9,10 +9,20 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class IndividualSoundActivity extends AppCompatActivity {
     private MediaPlayer teacherPlayer;
-    private MediaPlayer studentPlayer;
+    private MediaPlayer userPlayer;
+    private boolean isTeacherPlaying = false;
+    private boolean isUserPlaying = false;
+    private boolean isLooping = false;
+    private int buttonPressCount = 0;
+    private boolean hasUserRecording = false;
+
+    // Representation Invariant: !isTeacherPlaying || !isUserPlaying
+    // teacher icon lit up if and only if isTeacherPlaying, user icon lit up if and only if isUserPlaying
+    // reset to default upon leaving page
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,33 +36,16 @@ public class IndividualSoundActivity extends AppCompatActivity {
     }
 
     public void handlePlayButtonClick(View view) {
-//        if (mediaPlayer == null) {
-//            mediaPlayer = MediaPlayer.create(this, R.raw.recording);
-//            mediaPlayer.setLooping(true);
-//        }
-        ImageButton button = findViewById(R.id.playPauseButton);
-        ImageView teacherSpeakingImageView = findViewById(R.id.teacherSpeakingImageView);
-        ImageView studentSpeakingImageView = findViewById(R.id.studentSpeakingImageView);
-
-        if (teacherPlayer.isPlaying() || studentPlayer.isPlaying()) {
-            button.setImageResource(R.drawable.playicon);
-            teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
-            studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
-            //getResources().getDrawable(android.R.drawable.ic_media_play,null)
-            if (teacherPlayer.isPlaying()) {
-                teacherPlayer.pause();
+        buttonPressCount++;
+        System.out.println("play/pause button pressed " + buttonPressCount);
+        boolean mediaWasPaused = pauseMedia();
+        if (!mediaWasPaused) {
+            if (hasUserRecording) {
+                isLooping = true;
+                playTeacher();
+            } else {
+                noRecordingToast();
             }
-            if (studentPlayer.isPlaying()) {
-                studentPlayer.pause();
-            }
-        } else {
-            button.setImageResource(R.drawable.pauseicon);
-            //mediaPlayer.seekTo(0);
-
-            teacherPlayer.start();
-
-            teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-            studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
         }
     }
 
@@ -62,8 +55,8 @@ public class IndividualSoundActivity extends AppCompatActivity {
         if (teacherPlayer != null) {
             teacherPlayer.release();
         }
-        if (studentPlayer != null) {
-            studentPlayer.release();
+        if (userPlayer != null) {
+            userPlayer.release();
         }
     }
 
@@ -83,56 +76,135 @@ public class IndividualSoundActivity extends AppCompatActivity {
         setTone(4);
     }
 
+    // pre: media is not playing
+    private void playTeacher() {
+        teacherPlayer.start();
+        isTeacherPlaying = true;
+
+        ImageButton button = findViewById(R.id.playPauseButton);
+        ImageView teacherSpeakingImageView = findViewById(R.id.teacherSpeakingImageView);
+
+        if (isLooping) {
+            button.setImageResource(R.drawable.pauseicon);
+        }
+        teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+    }
+
+    private void playUser() {
+        userPlayer.start();
+        isUserPlaying = true;
+
+        ImageButton button = findViewById(R.id.playPauseButton);
+        ImageView userSpeakingImageView = findViewById(R.id.studentSpeakingImageView);
+
+        if (isLooping) {
+            button.setImageResource(R.drawable.pauseicon);
+        }
+        userSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+    }
+
+    public void handleTeacherClick(View view) {
+        playTeacher();
+    }
+
+    public void handleUserClick(View view) {
+        if (hasUserRecording) {
+            playUser();
+        } else {
+            noRecordingToast();
+        }
+    }
+
+    private void noRecordingToast() {
+        Toast toast = Toast.makeText(this, "You have not yet made a recording for this sound.", Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    // pauses media if currently playing, returns true if it pauses media
+    private boolean pauseMedia(){
+        if(isTeacherPlaying){
+            teacherPlayer.pause();
+            teacherPlayer.seekTo(0);
+            isTeacherPlaying = false;
+        } else if(isUserPlaying){
+            userPlayer.pause();
+            userPlayer.seekTo(0);
+            isUserPlaying = false;
+        } else {
+            return false;
+        }
+        ImageButton button = findViewById(R.id.playPauseButton);
+        ImageView teacherSpeakingImageView = findViewById(R.id.teacherSpeakingImageView);
+        ImageView studentSpeakingImageView = findViewById(R.id.studentSpeakingImageView);
+
+        button.setImageResource(R.drawable.playicon);
+        teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
+        studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
+
+        isLooping = false;
+        return true;
+    }
+
+    private int getRecordingId(String speaker, int tone) {
+        Intent intent = getIntent();
+        String pinyin = intent.getStringExtra("pinyin");
+        String teacherRecordingName = pinyin + "_" + tone + "_" + speaker;
+
+        int recordingId = getResources().getIdentifier(teacherRecordingName, "raw", this.getPackageName());
+        return recordingId;
+    }
+
     private void setTone(int tone) {
         if (tone < 1 || tone > 4) {
             throw new IllegalArgumentException();
         }
 
         // Pause any currently playing recordings
-        if (teacherPlayer != null && teacherPlayer.isPlaying()) {
-            teacherPlayer.pause();
-        }
-        if (studentPlayer != null && studentPlayer.isPlaying()) {
-            studentPlayer.pause();
-        }
 
-        // Set button to show play (as playback has been paused)
-        ImageButton button = findViewById(R.id.playPauseButton);
-        button.setImageResource(R.drawable.playicon);
+        pauseMedia();
 
-        Intent intent = getIntent();
-        String pinyin = intent.getStringExtra("pinyin");
-        String teacherRecordingName = pinyin + "_" + tone + "_teacher";
-        String studentRecordingName = pinyin + "_" + tone + "_user";
 
-        //recordingName = "recording";
-        //System.out.println(recordingName);
-        int teacherRecordingId = getResources().getIdentifier(teacherRecordingName, "raw", this.getPackageName());
-        int studentRecordingId = getResources().getIdentifier(studentRecordingName, "raw", this.getPackageName());
-        teacherPlayer = MediaPlayer.create(this, teacherRecordingId);
-        studentPlayer = MediaPlayer.create(this, studentRecordingId);
 
         MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 ImageView teacherSpeakingImageView = findViewById(R.id.teacherSpeakingImageView);
                 ImageView studentSpeakingImageView = findViewById(R.id.studentSpeakingImageView);
-                if (mp == teacherPlayer) {
-                    studentPlayer.start();
-                    teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
-                    studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                if (isLooping) {
+                    if (mp == teacherPlayer) {
+                        userPlayer.start();
+                        isUserPlaying = true;
+                        isTeacherPlaying = false;
+                        teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
+                        studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                    } else {
+                        teacherPlayer.start();
+                        isTeacherPlaying = true;
+                        isUserPlaying = false;
+                        teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                        studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
+                    }
                 } else {
-                    teacherPlayer.start();
-                    teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-                    studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
+                    if (mp == teacherPlayer) {
+                        isTeacherPlaying = false;
+                        teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
+                    } else {
+                        isUserPlaying = false;
+                        studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
+                    }
                 }
             }
         };
 
-
+        int teacherRecordingId = getRecordingId("teacher", tone);
+        teacherPlayer = MediaPlayer.create(this, teacherRecordingId);
         teacherPlayer.setOnCompletionListener(onCompletionListener);
-        studentPlayer.setOnCompletionListener(onCompletionListener);
 
+        if (hasUserRecording) {
+            int studentRecordingId = getRecordingId("user", tone);
+            userPlayer = MediaPlayer.create(this, studentRecordingId);
+            userPlayer.setOnCompletionListener(onCompletionListener);
+        }
         //mediaPlayer.setLooping(true);
     }
 }
