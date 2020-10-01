@@ -4,16 +4,23 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.IOException;
 
 public class IndividualSoundActivity extends AppCompatActivity {
     private MediaPlayer teacherPlayer;
     private MediaPlayer userPlayer;
+    private MediaRecorder recorder;
     private boolean isTeacherPlaying = false;
     private boolean isUserPlaying = false;
     private boolean isLooping = false;
@@ -30,8 +37,50 @@ public class IndividualSoundActivity extends AppCompatActivity {
         setContentView(R.layout.activity_individual);
         Intent intent = getIntent();
         TextView pinyinTextView = findViewById(R.id.pinyinTextView);
-        String pinyin = intent.getStringExtra("pinyin");
+        final String pinyin = intent.getStringExtra("pinyin");
         pinyinTextView.setText(pinyin);
+
+        ImageButton recordButton = findViewById(R.id.recordButton);
+        recordButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    recorder = new MediaRecorder();
+                    recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                    recorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+                    RadioGroup rg = findViewById(R.id.toneRadioGroup);
+                    int id = rg.getCheckedRadioButtonId();
+                    int tone;
+                    if (id == R.id.tone1RadioButton) {
+                        tone = 1;
+                    } else if (id == R.id.tone2RadioButton) {
+                        tone = 2;
+                    } else if (id == R.id.tone3RadioButton) {
+                        tone = 3;
+                    } else {
+                        tone = 4;
+                    }
+
+                    String fileName = pinyin + "_" + tone + "_user";
+                    recorder.setOutputFile(fileName);
+                    recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+
+                    try {
+                        recorder.prepare();
+                    } catch (IOException e) {
+                        System.out.println("prepare() failed");
+                    }
+                    recorder.start();
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    recorder.stop();
+                    recorder.release();
+                    recorder = null;
+                } else {
+                    return false;
+                }
+                return true;
+            }
+        });
         setTone(1);
     }
 
