@@ -80,7 +80,15 @@ public class IndividualSoundActivity extends AppCompatActivity {
                         }
 
                         String fileName = pinyin + "_" + tone + "_user";
-                        recorder.setOutputFile(new File(fileName));
+
+                        File f = new File(fileName);
+                        try {
+                            f.createNewFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            System.out.println("create new file failed");
+                        }
+                        recorder.setOutputFile(f);
                         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
 
                         try {
