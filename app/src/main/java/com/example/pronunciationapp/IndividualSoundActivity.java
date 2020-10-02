@@ -1,5 +1,6 @@
 package com.example.pronunciationapp;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -8,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,6 +21,7 @@ import android.widget.Toast;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
+import java.io.File;
 import java.io.IOException;
 
 public class IndividualSoundActivity extends AppCompatActivity {
@@ -51,6 +54,7 @@ public class IndividualSoundActivity extends AppCompatActivity {
 
         ImageButton recordButton = findViewById(R.id.recordButton);
         recordButton.setOnTouchListener(new View.OnTouchListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (!CheckPermissions())
@@ -76,12 +80,13 @@ public class IndividualSoundActivity extends AppCompatActivity {
                         }
 
                         String fileName = pinyin + "_" + tone + "_user";
-                        recorder.setOutputFile(fileName);
+                        recorder.setOutputFile(new File(fileName));
                         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
 
                         try {
                             recorder.prepare();
                         } catch (IOException e) {
+                            System.out.println(e);
                             System.out.println("prepare() failed");
                             return false;
                         }
