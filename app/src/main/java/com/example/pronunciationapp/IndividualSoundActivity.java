@@ -81,7 +81,7 @@ public class IndividualSoundActivity extends AppCompatActivity {
 
                         String fileName = pinyin + "_" + tone + "_user";
 
-                        File f = new File(fileName);
+                        File f = new File(getFilesDir(), fileName);
                         try {
                             f.createNewFile();
                         } catch (IOException e) {
@@ -95,7 +95,7 @@ public class IndividualSoundActivity extends AppCompatActivity {
                             recorder.prepare();
                         } catch (IOException e) {
                             System.out.println(e);
-                            System.out.println("prepare() failed");
+                            System.out.println("prepare() failed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                             return false;
                         }
                         recorder.start();
