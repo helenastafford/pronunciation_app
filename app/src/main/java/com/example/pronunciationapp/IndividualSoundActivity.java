@@ -1,12 +1,14 @@
 package com.example.pronunciationapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
@@ -14,10 +16,13 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import static android.Manifest.permission.RECORD_AUDIO;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 import java.io.IOException;
 
 public class IndividualSoundActivity extends AppCompatActivity {
+    public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
     private MediaPlayer teacherPlayer;
     private MediaPlayer userPlayer;
     private MediaRecorder recorder;
@@ -35,6 +40,10 @@ public class IndividualSoundActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_individual);
+
+       // registerForActivityResult(new ActivityResultCallback());
+
+
         Intent intent = getIntent();
         TextView pinyinTextView = findViewById(R.id.pinyinTextView);
         final String pinyin = intent.getStringExtra("pinyin");
@@ -44,42 +53,52 @@ public class IndividualSoundActivity extends AppCompatActivity {
         recordButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    recorder = new MediaRecorder();
-                    recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                    recorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
-                    RadioGroup rg = findViewById(R.id.toneRadioGroup);
-                    int id = rg.getCheckedRadioButtonId();
-                    int tone;
-                    if (id == R.id.tone1RadioButton) {
-                        tone = 1;
-                    } else if (id == R.id.tone2RadioButton) {
-                        tone = 2;
-                    } else if (id == R.id.tone3RadioButton) {
-                        tone = 3;
-                    } else {
-                        tone = 4;
-                    }
+                if (!CheckPermissions())
+                    RequestPermissions();
 
-                    String fileName = pinyin + "_" + tone + "_user";
-                    recorder.setOutputFile(fileName);
-                    recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+                if (CheckPermissions()) {
+                    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
 
-                    try {
-                        recorder.prepare();
-                    } catch (IOException e) {
-                        System.out.println("prepare() failed");
+                        recorder = new MediaRecorder();
+                        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                        recorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+                        RadioGroup rg = findViewById(R.id.toneRadioGroup);
+                        int id = rg.getCheckedRadioButtonId();
+                        int tone;
+                        if (id == R.id.tone1RadioButton) {
+                            tone = 1;
+                        } else if (id == R.id.tone2RadioButton) {
+                            tone = 2;
+                        } else if (id == R.id.tone3RadioButton) {
+                            tone = 3;
+                        } else {
+                            tone = 4;
+                        }
+
+                        String fileName = pinyin + "_" + tone + "_user";
+                        recorder.setOutputFile(fileName);
+                        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+
+                        try {
+                            recorder.prepare();
+                        } catch (IOException e) {
+                            System.out.println("prepare() failed");
+                            return false;
+                        }
+                        recorder.start();
+                    } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        recorder.stop();
+                        recorder.release();
+                        recorder = null;
+                    } else {//returns false if motionEvent is not ACTION_DOWN or ACTION_UP
+                        return false;
                     }
-                    recorder.start();
-                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    recorder.stop();
-                    recorder.release();
-                    recorder = null;
-                } else {
+                } else {//returns false if not given permission
                     return false;
                 }
-                return true;
-            }
+                    return true;
+                }
+
         });
         setTone(1);
     }
@@ -255,5 +274,15 @@ public class IndividualSoundActivity extends AppCompatActivity {
             userPlayer.setOnCompletionListener(onCompletionListener);
         }
         //mediaPlayer.setLooping(true);
+    }
+
+    public boolean CheckPermissions() {
+        int result = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
+        int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
+        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void RequestPermissions() {
+        ActivityCompat.requestPermissions(IndividualSoundActivity.this, new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
     }
 }
