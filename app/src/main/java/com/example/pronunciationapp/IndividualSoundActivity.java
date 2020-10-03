@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -32,8 +33,7 @@ public class IndividualSoundActivity extends AppCompatActivity {
     private boolean isTeacherPlaying = false;
     private boolean isUserPlaying = false;
     private boolean isLooping = false;
-    private int buttonPressCount = 0;
-    private boolean hasUserRecording = false;
+    private int currentTone = 1;
 
     // Representation Invariant: !isTeacherPlaying || !isUserPlaying
     // teacher icon lit up if and only if isTeacherPlaying, user icon lit up if and only if isUserPlaying
@@ -66,20 +66,8 @@ public class IndividualSoundActivity extends AppCompatActivity {
                         recorder = new MediaRecorder();
                         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                         recorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
-                        RadioGroup rg = findViewById(R.id.toneRadioGroup);
-                        int id = rg.getCheckedRadioButtonId();
-                        int tone;
-                        if (id == R.id.tone1RadioButton) {
-                            tone = 1;
-                        } else if (id == R.id.tone2RadioButton) {
-                            tone = 2;
-                        } else if (id == R.id.tone3RadioButton) {
-                            tone = 3;
-                        } else {
-                            tone = 4;
-                        }
 
-                        String fileName = pinyin + "_" + tone + "_user";
+                        String fileName = getFileName("user", currentTone);
 
                         File f = new File(getFilesDir(), fileName);
                         try {
@@ -103,6 +91,8 @@ public class IndividualSoundActivity extends AppCompatActivity {
                         recorder.stop();
                         recorder.release();
                         recorder = null;
+                        setTone(currentTone);
+                        System.out.println();
                     } else {//returns false if motionEvent is not ACTION_DOWN or ACTION_UP
                         return false;
                     }
@@ -117,11 +107,9 @@ public class IndividualSoundActivity extends AppCompatActivity {
     }
 
     public void handlePlayButtonClick(View view) {
-        buttonPressCount++;
-        System.out.println("play/pause button pressed " + buttonPressCount);
         boolean mediaWasPaused = pauseMedia();
         if (!mediaWasPaused) {
-            if (hasUserRecording) {
+            if (hasUserRecording()) {
                 isLooping = true;
                 playTeacher();
             } else {
@@ -135,9 +123,11 @@ public class IndividualSoundActivity extends AppCompatActivity {
         super.onPause();
         if (teacherPlayer != null) {
             teacherPlayer.release();
+            teacherPlayer = null;
         }
         if (userPlayer != null) {
             userPlayer.release();
+            userPlayer = null;
         }
     }
 
@@ -189,7 +179,8 @@ public class IndividualSoundActivity extends AppCompatActivity {
     }
 
     public void handleUserClick(View view) {
-        if (hasUserRecording) {
+
+        if (hasUserRecording()) {
             playUser();
         } else {
             noRecordingToast();
@@ -226,25 +217,28 @@ public class IndividualSoundActivity extends AppCompatActivity {
         return true;
     }
 
-    private int getRecordingId(String speaker, int tone) {
-        Intent intent = getIntent();
-        String pinyin = intent.getStringExtra("pinyin");
-        String teacherRecordingName = pinyin + "_" + tone + "_" + speaker;
+    private int getTeacherRecordingId(int tone) {
+        String teacherRecordingName = getFileName("teacher", tone);
 
         int recordingId = getResources().getIdentifier(teacherRecordingName, "raw", this.getPackageName());
         return recordingId;
     }
 
+    private File getUserRecordingFile(int tone) {
+        String userRecordingName = getFileName("user", tone);
+
+        return new File(getFilesDir(), userRecordingName);
+    }
+
     private void setTone(int tone) {
+
         if (tone < 1 || tone > 4) {
             throw new IllegalArgumentException();
         }
-
+        currentTone = tone;
         // Pause any currently playing recordings
 
         pauseMedia();
-
-
 
         MediaPlayer.OnCompletionListener onCompletionListener = new MediaPlayer.OnCompletionListener() {
             @Override
@@ -277,13 +271,13 @@ public class IndividualSoundActivity extends AppCompatActivity {
             }
         };
 
-        int teacherRecordingId = getRecordingId("teacher", tone);
+        int teacherRecordingId = getTeacherRecordingId(tone);
         teacherPlayer = MediaPlayer.create(this, teacherRecordingId);
         teacherPlayer.setOnCompletionListener(onCompletionListener);
 
-        if (hasUserRecording) {
-            int studentRecordingId = getRecordingId("user", tone);
-            userPlayer = MediaPlayer.create(this, studentRecordingId);
+        if (hasUserRecording()) {
+            File userRecordingFile = getUserRecordingFile(tone);
+            userPlayer = MediaPlayer.create(this, Uri.fromFile(userRecordingFile));
             userPlayer.setOnCompletionListener(onCompletionListener);
         }
         //mediaPlayer.setLooping(true);
@@ -297,5 +291,18 @@ public class IndividualSoundActivity extends AppCompatActivity {
 
     private void RequestPermissions() {
         ActivityCompat.requestPermissions(IndividualSoundActivity.this, new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
+    }
+
+    private boolean hasUserRecording() {
+        String fileName = getFileName("user", currentTone);
+        File f = new File(getFilesDir(), fileName);
+        return f.exists();
+    }
+
+    private String getFileName(String speaker,int tone) {
+        Intent intent = getIntent();
+        String pinyin = intent.getStringExtra("pinyin");
+        String recordingName = pinyin + "_" + tone + "_" + speaker;
+        return recordingName;
     }
 }
