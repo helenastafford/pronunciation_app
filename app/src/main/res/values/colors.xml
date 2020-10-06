@@ -3,5 +3,6 @@
     <color name="colorPrimary">#C13939</color>
     <color name="colorPrimaryDark">#8C0000</color>
     <color name="colorAccent">@android:color/holo_orange_light</color>
-    <color name="colorNotSpeaking">#FFFFFF</color>
+    <color name="colorNotSpeaking">#494949</color>
+    <color name="colorRecordButton">#E45959</color>
 </resources>

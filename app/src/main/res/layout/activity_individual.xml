@@ -11,9 +11,10 @@
         android:id="@+id/playPauseButton"
         android:layout_width="99dp"
         android:layout_height="102dp"
-        android:background="#00FFFFFF"
+        android:background="#FFFFFF"
         android:onClick="handlePlayButtonClick"
         android:scaleType="centerCrop"
+        android:tint="@color/colorNotSpeaking"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,15 +27,17 @@
         android:layout_width="90dp"
         android:layout_height="90dp"
         android:background="#FFFFFF"
+        android:backgroundTint="#FFFFFF"
         android:cropToPadding="true"
         android:onClick="handleUserClick"
         android:scaleType="centerCrop"
+        android:tint="@color/colorNotSpeaking"
         app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/teacherSpeakingImageView"
         app:layout_constraintTop_toBottomOf="@+id/toneRadioGroup"
-        app:layout_constraintVertical_bias="0.661"
+        app:layout_constraintVertical_bias="0.784"
         app:srcCompat="@drawable/ic_student" />
 
     <ImageView
@@ -43,12 +46,13 @@
         android:layout_height="90dp"
         android:background="#FFFFFF"
         android:onClick="handleTeacherClick"
+        android:tint="@color/colorNotSpeaking"
         app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
         app:layout_constraintEnd_toStartOf="@+id/studentSpeakingImageView"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toneRadioGroup"
-        app:layout_constraintVertical_bias="0.661"
+        app:layout_constraintVertical_bias="0.784"
         app:srcCompat="@drawable/ic_teacher" />
 
     <TextView
@@ -112,7 +116,7 @@
         android:id="@+id/recordButton"
         android:layout_width="match_parent"
         android:layout_height="90dp"
-        android:background="#ADC13939"
+        android:background="#E45959"
         android:cropToPadding="false"
         android:scaleType="fitCenter"
         android:tint="#FFFFFF"
@@ -142,5 +146,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toneRadioGroup"
         app:layout_constraintVertical_bias="0.157" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Press play button to loop"
+        app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

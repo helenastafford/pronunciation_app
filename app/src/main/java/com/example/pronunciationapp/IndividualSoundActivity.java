@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -47,7 +49,6 @@ public class IndividualSoundActivity extends AppCompatActivity {
 
        // registerForActivityResult(new ActivityResultCallback());
 
-
         Intent intent = getIntent();
         TextView pinyinTextView = findViewById(R.id.pinyinTextView);
         final String pinyin = intent.getStringExtra("pinyin");
@@ -66,7 +67,7 @@ public class IndividualSoundActivity extends AppCompatActivity {
                     if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
 
                         //change color
-                        recordButton.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+                        recordButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
                         recorder = new MediaRecorder();
                         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -94,7 +95,7 @@ public class IndividualSoundActivity extends AppCompatActivity {
                         recorder.start();
                     } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                         //change color
-                        recordButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                        recordButton.setBackgroundColor(getResources().getColor(R.color.colorRecordButton));
 
                         recorder.stop();
                         recorder.release();
@@ -156,6 +157,7 @@ public class IndividualSoundActivity extends AppCompatActivity {
     }
 
     // pre: media is not playing
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void playTeacher() {
         teacherPlayer.start();
         isTeacherPlaying = true;
@@ -166,7 +168,9 @@ public class IndividualSoundActivity extends AppCompatActivity {
         if (isLooping) {
             button.setImageResource(R.drawable.pauseicon);
         }
-        teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+        teacherSpeakingImageView.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorAccent)));
+                //.setColorFilter(R.color.colorAccent);
+                //setBackgroundColor(getResources().getColor(R.color.colorAccent));
     }
 
     private void playUser() {
@@ -179,9 +183,10 @@ public class IndividualSoundActivity extends AppCompatActivity {
         if (isLooping) {
             button.setImageResource(R.drawable.pauseicon);
         }
-        userSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+        userSpeakingImageView.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorAccent)));
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void handleTeacherClick(View view) {
         playTeacher();
     }
@@ -201,6 +206,7 @@ public class IndividualSoundActivity extends AppCompatActivity {
     }
 
     // pauses media if currently playing, returns true if it pauses media
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private boolean pauseMedia(){
         if(isTeacherPlaying){
             teacherPlayer.pause();
@@ -218,9 +224,10 @@ public class IndividualSoundActivity extends AppCompatActivity {
         ImageView studentSpeakingImageView = findViewById(R.id.studentSpeakingImageView);
 
         button.setImageResource(R.drawable.playicon);
-        teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
-        studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
-
+        //teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
+       // studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
+        studentSpeakingImageView.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorNotSpeaking)));
+        teacherSpeakingImageView.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorNotSpeaking)));
         isLooping = false;
         return true;
     }
@@ -240,6 +247,7 @@ public class IndividualSoundActivity extends AppCompatActivity {
 
     private void setTone(int tone) {
 
+        final Context context = this;
         if (tone < 1 || tone > 4) {
             throw new IllegalArgumentException();
         }
@@ -258,22 +266,22 @@ public class IndividualSoundActivity extends AppCompatActivity {
                         userPlayer.start();
                         isUserPlaying = true;
                         isTeacherPlaying = false;
-                        teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
-                        studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                        teacherSpeakingImageView.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorNotSpeaking)));
+                        studentSpeakingImageView.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorAccent)));
                     } else {
                         teacherPlayer.start();
                         isTeacherPlaying = true;
                         isUserPlaying = false;
-                        teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-                        studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
+                        teacherSpeakingImageView.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorAccent)));
+                        studentSpeakingImageView.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorNotSpeaking)));
                     }
                 } else {
                     if (mp == teacherPlayer) {
                         isTeacherPlaying = false;
-                        teacherSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
+                        teacherSpeakingImageView.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorNotSpeaking)));
                     } else {
                         isUserPlaying = false;
-                        studentSpeakingImageView.setBackgroundColor(getResources().getColor(R.color.colorNotSpeaking));
+                        studentSpeakingImageView.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorNotSpeaking)));
                     }
                 }
             }
