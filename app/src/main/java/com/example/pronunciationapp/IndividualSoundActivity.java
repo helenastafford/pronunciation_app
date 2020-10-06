@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
@@ -61,7 +62,11 @@ public class IndividualSoundActivity extends AppCompatActivity {
                     RequestPermissions();
 
                 if (CheckPermissions()) {
+                    ImageButton recordButton = findViewById(R.id.recordButton);
                     if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+
+                        //change color
+                        recordButton.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
 
                         recorder = new MediaRecorder();
                         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -88,6 +93,9 @@ public class IndividualSoundActivity extends AppCompatActivity {
                         }
                         recorder.start();
                     } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        //change color
+                        recordButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+
                         recorder.stop();
                         recorder.release();
                         recorder = null;
