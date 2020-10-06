@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Pronunciation App</string>
+    <string name="click_on_an_icon_to_play_recording">Click on an icon to play recording</string>
+    <string name="hold_record_button_down_to_record">Hold record button down to record</string>
 </resources>
